@@ -15,8 +15,13 @@ def clearLog():
 def displayLog():
     pop = 2
 
+#These are the port numbers for the raspberry pi
+PORT_NUMBER = [2, 3, 4, 5]
 
-PORT_NUMBERS = [2, 3, 4, 5]
+#-d is to display everything in the log
+#-c is to clear the log
+#-dc is to first display everything in the log and then clear the log
+ALLOWED_ARGS = ["-d", "-c", "-dc" ]
 
 
 def main():
@@ -28,6 +33,7 @@ def main():
         
         logData = logFile.readlines()
         FoundID = False
+        validParams = True
         
         paramSize = len(sys.argv)
         
@@ -63,9 +69,18 @@ def main():
             #    print(str(dev.product) + ' by ' + str(dev.manufacturer)  + ', Decimal VID & PID = ' + str(dev.idVendor) + ' : ' + str(dev.idProduct) + " at port: " + str(dev.serial_number)  +  '\n')
         
         else:
-            print(sys.argv[1])
+            param = sys.argv[1]
+            
+            #This checks to see if the parameter passed is one of the allowed args. 
+            #If so, then do the action that the arg correlates to
+            #If not validParams = False and tells the user
+            if not param in ALLOWED_ARGS:
+                validParams = False
+                print("Parameter entered are not valid.")
+            else:
+                print(param)
         
-        if not USBCount:
+        if not USBCount and validParams:
             print("Nothing connected to USB Ports!")
     
     except ValueError as e:
