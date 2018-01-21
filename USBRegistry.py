@@ -1,4 +1,5 @@
 import sys
+import os
 import usb.core
 import usb.util
 import serial
@@ -10,20 +11,34 @@ import serial
 #Open the USBLog and clear out the log
 def clearLog():
     try:
-        print("Log has been cleared")
+        if os.stat('USBLog').st_size:
+            open('USBLog', 'w').close()
+            print("Log has been cleared!")
+        else:
+            print("Nothing to clear!")
     except:
         raise
-    finally:
-        print("Log has been cleared")
 
 #Display each entry in the log
 def displayLog():
     try:
-        print("Log is displayed")
+        logFile = open('USBLog', 'r')
+        logData = list(logFile)
+
+        #If there is at least 1 entry in the log, display all entries
+        if len(logData):
+            print("ID:Product:Manufacturer")
+            print("____Log Entries___")
+            for log in logData:
+                print(log.rstrip('\n'))
+        #Else, tell the user there are no entries
+        else:
+            print("The log is empty!")
+
     except:
         raise
     finally:
-        print("Clear Finally")
+        logFile.close()
 
 
 def logAndSeeConnectedDevices(devs):
@@ -68,24 +83,28 @@ def logAndSeeConnectedDevices(devs):
     finally:
         logFile.close()
 
-def CallParamTree(param):
+def CallParamTree(param, devs):
 
     if param == "-d":
         displayLog()
+
     elif param == "-ld":
         logAndSeeConnectedDevices(devs)
+        displayLog()
+    
     elif param == "-c":
         clearLog()
+    
     elif param == "-dc":
         displayLog()
         clearLog()
+    
     elif param == "-ldc":
         logAndSeeConnectedDevices(devs)
         displayLog()
         clearLog()
 
-
-#These are the port numbers for the raspberry pi
+#These are the port numbers for the Raspberry Pi 3 Model B
 PORT_NUMBERS = [2, 3, 4, 5]
 
 #-d is to display everything in the log
@@ -111,7 +130,7 @@ def main():
         if not param in ALLOWED_ARGS:
             print("Parameter entered are not valid.")
         else:
-            CallParamTree(param)
+            CallParamTree(param, devs)
         
     except IndexError as e:
         #Seeing as there are no parameters, we want just the basic functionality of adding any
@@ -124,9 +143,6 @@ def main():
         if e == "The device has no langid":
             print("This issue can possibly be fixed by going to the /etc/udev/rules.d directory and writing the following line in the 99-*.rules file")
             print("SUBSYSTEM==\"usb\", MODE==\"0666\", GROUP==\"usbusers\"")
-
-    finally:
-        ("Thanks for trying the program!")
 
 
 if __name__ == "__main__":
