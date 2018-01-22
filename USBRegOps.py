@@ -1,8 +1,4 @@
-import sys
 import os
-import usb.core
-import usb.util
-import serial
 
 #To prevent the 'Error: The device has no langid' issue
 #Must add the line below to the 99-*.rules file at: /etc/udev/rules.d
